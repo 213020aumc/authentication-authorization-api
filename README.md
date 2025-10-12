@@ -4,7 +4,7 @@ This project is a complete, production-grade REST API for handling user authenti
 
 **Built with:** Node.js, Express, TypeScript, TypeORM (with PostgreSQL), JWT, and Pug for email templates.
 
-**Connect with me:** [LinkedIn](www.linkedin.com/in/muhammad-fraz-298900247)
+**Connect with me:** [LinkedIn](https://www.linkedin.com/in/muhammad-fraz-298900247)
 
 ---
 
