@@ -1,0 +1,17 @@
+doctype html
+html
+    head
+        title Your Verification Code
+        style.
+            body { font-family: Arial, sans-serif; }
+            .container { padding: 20px; border: 1px solid #ddd; border-radius: 5px; max-width: 500px; margin: auto; }
+            h2 { color: #333; }
+            p { font-size: 16px; }
+            .otp { font-size: 24px; font-weight: bold; color: #007bff; letter-spacing: 2px; }
+    body
+        .container
+            h2 Account Verification
+            p Hello #{name},
+            p Thank you for registering. Please use the following One-Time Password (OTP) to verify your account. This code is valid for 10 minutes.
+            p.otp #{otp}
+            p If you did not request this, please ignore this email.

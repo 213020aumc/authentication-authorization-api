@@ -1,0 +1,49 @@
+{
+  "name": "authentication",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc && npm run copy:views",
+    "copy:views": "cpy \"src/views/**/*\" dist/views --parents",
+    "start": "npm run build && node ./dist/server.js",
+    "watch:ts": "tsc -w",
+    "server": "concurrently \"npm:watch:ts\" \"npm:watch:views\" \"nodemon ./dist/server.js\"",
+    "watch:views": "cpy \"src/views/**/*\" dist/views --parents --watch",
+    "typeorm": "npx typeorm-ts-node-esm -d src/config/data-source.ts",
+    "migration:generate": "npm run typeorm -- migration:generate",
+    "migration:run": "npm run typeorm -- migration:run",
+    "migration:revert": "npm run typeorm -- migration:revert"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "joi": "^18.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^7.0.9",
+    "pg": "^8.16.3",
+    "pug": "^3.0.3",
+    "typeorm": "^0.3.27"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.7.1",
+    "@types/nodemailer": "^7.0.2",
+    "@types/pug": "^2.0.10",
+    "concurrently": "^9.2.1",
+    "cpy-cli": "^6.0.0",
+    "nodemon": "^3.1.10",
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
