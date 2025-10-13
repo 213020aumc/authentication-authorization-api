@@ -100,3 +100,60 @@ All endpoints are prefixed with `/api/v1`.
 | :----- | :--------------- | :------------------------------------------------------------------- | :-------- |
 | `GET`  | `/users/profile` | Returns the profile information of the currently authenticated user. | **User**  |
 | `GET`  | `/users/`        | Returns a list of all user profiles in the system.                   | **Admin** |
+
+---
+
+## 📸 API Showcase & Testing
+
+The entire API was meticulously tested using **Hoppscotch** to ensure functionality, security, and robust error handling. The following screenshots demonstrate the key user flows and features.
+
+The Hoppscotch collection provides a complete overview of all available endpoints.
+![Hoppscotch Collection](screenshots/01-hoppscotch-collection.jpg)
+
+### 1. User Onboarding & Verification Flow
+
+A seamless multi-step process for new users to register and verify their accounts. This flow demonstrates the creation of a user, the automated email response, and final account activation.
+
+| Step   | Action                                                                                                                                          | Screenshot                                                           |
+| :----- | :---------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------- | --- |
+| **1a** | **Sending the Request:** A `POST` request is sent to `/auth/register` with the new user's details (name, email, password) in the request body.  | ![User Registration Request](screenshots/02a-register-request.jpg)   |
+| **1b** | **Receiving the Response:** The API responds with a `201 Created` status, confirming the user was created and an OTP was sent for verification. | ![User Registration Response](screenshots/02b-register-response.jpg) |
+| **2**  | **Email Notification:** An automated verification email with a unique OTP is immediately sent to the user's inbox.                              | ![Verification Email](screenshots/03-verification-email.jpg)         |
+| **3**  | **Account Activation:** The user's account is successfully verified and activated using the OTP via a `POST` to `/auth/verify-otp`.             | ![Verify OTP](screenshots/04-verify-otp-success.jpg)                 |     |
+
+### 2. User Login & Accessing Protected Data
+
+Once verified, a user can log in to receive a JWT and access protected routes.
+
+| Step  | Action                                                                            | Screenshot                                                  |
+| :---- | :-------------------------------------------------------------------------------- | :---------------------------------------------------------- |
+| **1** | A successful login returns a `200 OK` status and a JWT access token.              | ![User Login](screenshots/05-login-success.jpg)             |
+| **2** | The JWT is used as a Bearer token to access the protected `/users/profile` route. | ![Get User Profile](screenshots/06-get-profile-success.jpg) |
+
+### 3. Secure Password Reset Flow
+
+A complete, secure flow for users who have forgotten their password.
+
+| Step  | Action                                                                          | Screenshot                                                       |
+| :---- | :------------------------------------------------------------------------------ | :--------------------------------------------------------------- |
+| **1** | The user initiates the process with their email, receiving a `200 OK` response. | ![Forgot Password](screenshots/07-forgot-password-success.jpg)   |
+| **2** | A dedicated password reset email with a new OTP is sent.                        | ![Password Reset Email](screenshots/08-password-reset-email.jpg) |
+| **3** | The user confirms the new password with the OTP, successfully resetting it.     | ![Reset Password](screenshots/09-reset-password-success.jpg)     |
+
+### 4. Role-Based Access Control (RBAC) in Action
+
+Demonstrating how the API restricts access to admin-only endpoints.
+
+| Scenario           | Result                                                                                                          | Screenshot                                                     |
+| :----------------- | :-------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------- |
+| **Access Denied**  | A regular user is correctly denied access to the admin-only `GET /users` endpoint with a `403 Forbidden` error. | ![Admin Route Failure](screenshots/10-admin-route-failure.jpg) |
+| **Access Granted** | An authenticated admin successfully retrieves the list of all users from the same endpoint.                     | ![Admin Route Success](screenshots/11-admin-route-success.jpg) |
+
+### 5. Robust Error Handling
+
+The API provides clear and appropriate error messages for invalid requests.
+
+| Scenario                  | Result                                                                                      | Screenshot                                            |
+| :------------------------ | :------------------------------------------------------------------------------------------ | :---------------------------------------------------- |
+| **Incorrect Credentials** | A login attempt with the wrong password results in a `401 Unauthorized` error.              | ![Login Failure](screenshots/12-login-failure.jpg)    |
+| **Invalid OTP**           | An attempt to verify an account with an incorrect OTP is rejected with a `400 Bad Request`. | ![Invalid OTP](screenshots/13-verify-otp-failure.jpg) |

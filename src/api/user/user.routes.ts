@@ -15,7 +15,7 @@ router.get(
 router.get(
   "/",
   authenticate,
-  authorize(UserRole.ADMIN),
+  authorize(UserRole.USER),
   userController.getAllProfiles
 );
 
