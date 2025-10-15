@@ -13,6 +13,7 @@ This project is a complete, production-grade REST API for handling user authenti
 - **JWT-Based Authentication**: Secure, stateless authentication using JSON Web Tokens.
 - **Account Management**: Full user lifecycle management from registration to password reset.
 - **Role-Based Access Control (RBAC)**: Middleware to restrict access based on user roles (e.g., `user` vs. `admin`).
+- **Single-Session Enforcement**: Users are automatically logged out of old sessions when they log in from a new device or browser, preventing account sharing and enhancing security.
 - **Secure Password Handling**: Passwords are encrypted using `bcryptjs`.
 - **Database Migrations**: Safe and version-controlled database schema management using TypeORM migrations.
 - **Input Validation**: Robust request body validation using `Joi` to prevent invalid data.

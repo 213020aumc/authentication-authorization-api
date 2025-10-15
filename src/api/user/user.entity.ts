@@ -39,6 +39,9 @@ export class User {
   @Column({ type: "timestamp", nullable: true, select: false })
   passwordChangedAt?: Date | null;
 
+  @Column({ type: "uuid", nullable: true, select: false })
+  sessionVersion?: string | null;
+
   @BeforeInsert()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 12);
