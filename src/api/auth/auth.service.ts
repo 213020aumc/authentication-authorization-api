@@ -17,12 +17,12 @@ const generateOtp = (): { otp: string; otpExpires: Date } => {
   return { otp, otpExpires };
 };
 
-const signToken = (id: string) => {
+const signToken = (id: string, sessionVersion: string) => {
   const options: SignOptions = {
     expiresIn: config.jwt.expiresIn as any,
   };
 
-  return jwt.sign({ id }, config.jwt.secret, options);
+  return jwt.sign({ id, sessionVersion }, config.jwt.secret, options);
 };
 
 export const registerUser = async (userData: Partial<User>) => {
@@ -63,7 +63,11 @@ export const login = async (email: string, pass: string) => {
     throw new AppError("Account not verified. Please verify your OTP.", 403);
   }
 
-  const token = signToken(user.id);
+  const newSessionVersion = crypto.randomUUID();
+  user.sessionVersion = newSessionVersion;
+  await userRepository.save(user);
+
+  const token = signToken(user.id, newSessionVersion);
   const { password, ...userResponse } = user;
   return { token, user: userResponse };
 };

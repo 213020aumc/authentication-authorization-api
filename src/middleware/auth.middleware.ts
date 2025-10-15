@@ -9,6 +9,7 @@ import { User, UserRole } from "../api/user/user.entity.js";
 interface JwtPayload {
   id: string;
   iat: number;
+  sessionVersion: string;
 }
 
 export const authenticate = catchAsync(
@@ -30,10 +31,12 @@ export const authenticate = catchAsync(
     const decoded = jwt.verify(token, config.jwt.secret) as JwtPayload;
 
     const userRepository = AppDataSource.getRepository(User);
+    // We must explicitly select the fields marked with { select: false }
     const currentUser = await userRepository
       .createQueryBuilder("user")
       .where("user.id = :id", { id: decoded.id })
       .addSelect("user.passwordChangedAt")
+      .addSelect("user.sessionVersion")
       .getOne();
 
     if (!currentUser) {
@@ -59,6 +62,15 @@ export const authenticate = catchAsync(
           )
         );
       }
+    }
+
+    if (decoded.sessionVersion !== currentUser.sessionVersion) {
+      return next(
+        new AppError(
+          "Your session is no longer valid. Please log in again.",
+          401
+        )
+      );
     }
 
     req.user = currentUser;
