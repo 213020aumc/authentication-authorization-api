@@ -1,5 +1,6 @@
 import jwt, { SignOptions } from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { AppDataSource } from "../../config/data-source.js";
 import { User } from "../user/user.entity.js";
 import { AppError } from "../../utils/AppError.js";
@@ -8,8 +9,13 @@ import {
   sendPasswordResetEmail,
 } from "../../services/mailer.service.js";
 import config from "../../config/index.js";
+import { toUserResponseDto } from "../user/user.dto.js";
 
 const userRepository = AppDataSource.getRepository(User);
+
+const hashOtp = (otp: string) => {
+  return crypto.createHash("sha256").update(otp).digest("hex");
+};
 
 const generateOtp = (): { otp: string; otpExpires: Date } => {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -36,16 +42,14 @@ export const registerUser = async (userData: Partial<User>) => {
   const { otp, otpExpires } = generateOtp();
   const newUser = userRepository.create({
     ...userData,
-    otp,
+    otp: hashOtp(otp),
     otpExpires,
   });
 
   await userRepository.save(newUser);
   await sendOtpEmail({ to: newUser.email, name: newUser.name, otp });
 
-  // Don't send password back
-  const { password, ...userResponse } = newUser;
-  return userResponse;
+  return toUserResponseDto(newUser);
 };
 
 export const login = async (email: string, pass: string) => {
@@ -68,8 +72,7 @@ export const login = async (email: string, pass: string) => {
   await userRepository.save(user);
 
   const token = signToken(user.id, newSessionVersion);
-  const { password, ...userResponse } = user;
-  return { token, user: userResponse };
+  return { token, user: toUserResponseDto(user) };
 };
 
 export const verifyOtp = async (email: string, otp: string) => {
@@ -81,7 +84,10 @@ export const verifyOtp = async (email: string, otp: string) => {
   if (user.isVerified) {
     throw new AppError("Account already verified.", 400);
   }
-  if (user.otp !== otp || !user.otpExpires || user.otpExpires < new Date()) {
+
+  const isMatch = user.otp === hashOtp(otp);
+
+  if (!isMatch || !user.otpExpires || user.otpExpires < new Date()) {
     throw new AppError("Invalid or expired OTP.", 400);
   }
 
@@ -99,7 +105,7 @@ export const resendOtp = async (email: string) => {
   if (user.isVerified) throw new AppError("Account already verified.", 400);
 
   const { otp, otpExpires } = generateOtp();
-  user.otp = otp;
+  user.otp = hashOtp(otp);
   user.otpExpires = otpExpires;
 
   await userRepository.save(user);
@@ -113,7 +119,7 @@ export const forgotPassword = async (email: string) => {
   if (!user) throw new AppError("User with that email does not exist.", 404);
 
   const { otp, otpExpires } = generateOtp();
-  user.otp = otp;
+  user.otp = hashOtp(otp);
   user.otpExpires = otpExpires;
 
   await userRepository.save(user);
@@ -134,8 +140,10 @@ export const resetPassword = async (
     throw new AppError("User not found.", 404);
   }
 
+  const isMatch = user.otp === hashOtp(otp);
+
   // Validating OTP
-  if (user.otp !== otp || !user.otpExpires || user.otpExpires < new Date()) {
+  if (!isMatch || !user.otpExpires || user.otpExpires < new Date()) {
     throw new AppError("Invalid or expired OTP.", 400);
   }
 
